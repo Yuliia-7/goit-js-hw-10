@@ -33,8 +33,23 @@ form.addEventListener('submit', e => {
     state: formData.get('state'),
   };
 
-  const row = addOrderRow(status.drink);
+  let row = addOrderRow(status.drink);
 
   const delay = PREP_TIME[status.drink];
   const shouldResolve = status.state === 'fulfilled';
+
+  makeOrder(delay, shouldResolve)
+    .then(value => {
+      row.textContent = `✅ ${status.drink} · готове · ${value} ms`;
+      row.classList.remove('row-pending');
+      row.classList.add('row-ok');
+    })
+    .catch(error => {
+      row.textContent = `❌ ${status.drink} · скасовано · ${error} ms`;
+      row.classList.remove('row-pending');
+      row.classList.add('row-err');
+    })
+    .finally(() => {
+      row.textContent += ` · ${new Date().toLocaleTimeString('uk-UA')}`;
+    });
 });
